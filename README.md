@@ -13,6 +13,7 @@ The system must switch if
 Installation
 ------------
 
+```
 yum install haproxy
 mv /etc/haproxy/haproxy.{cfg,cfg.old}
 ```
