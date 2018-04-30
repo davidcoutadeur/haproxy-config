@@ -20,8 +20,16 @@ main (int argc, char *argv[])
   char bindPWH[512];
 
   char bindRequest[2048]; // store the bind request in hexadecimal
-  char begin[]="3034020101602f0201030422"; // beginning of the bind request
-  char middle[]="8006";
+
+  char first[4+1]; // 0x3009 + length(DN) + length(PW)
+  char second[]="02010160";
+  char third[2+1]; // length(DN) + length(PW) - 11
+  char fourth[]="02010304";
+  char fifth[2+1]; // length(DN) - 12
+  // DN
+  char seventh[]="80";
+  char eighth[2+1]; // length(PW)
+  // PW
 
   int i=0, j=0;
 
@@ -52,10 +60,31 @@ main (int argc, char *argv[])
   }
   bindPWH[j]='\0';
 
+  // compute first
+  sprintf((char*)first,"%04x",(int)(0x3009+strlen(bindDN)+strlen(bindPW)));
+  first[4]='\0';
+
+  // compute third
+  sprintf((char*)third,"%02x",(int)(strlen(bindDN)+strlen(bindPW)-0xb));
+  third[2]='\0';
+
+  // compute fifth
+  sprintf((char*)fifth,"%02x",(int)(strlen(bindDN)-0xc));
+  fifth[2]='\0';
+
+  // compute eighth
+  sprintf((char*)eighth,"%02x",(int)strlen(bindPW));
+  eighth[2]='\0';
+
   // assembly
-  strcat(bindRequest, begin);
+  strcat(bindRequest, first);
+  strcat(bindRequest, second);
+  strcat(bindRequest, third);
+  strcat(bindRequest, fourth);
+  strcat(bindRequest, fifth);
   strcat(bindRequest, bindDNH);
-  strcat(bindRequest, middle);
+  strcat(bindRequest, seventh);
+  strcat(bindRequest, eighth);
   strcat(bindRequest, bindPWH);
 
   printf("%s\n\n",bindRequest);
