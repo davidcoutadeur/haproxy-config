@@ -21,14 +21,15 @@ main (int argc, char *argv[])
 
   char bindRequest[2048]; // store the bind request in hexadecimal
 
-  char first[4+1]; // 0x3009 + length(DN) + length(PW)
-  char second[]="02010160";
-  char third[2+1]; // length(DN) + length(PW) - 11
-  char fourth[]="02010304";
-  char fifth[2+1]; // length(DN) - 12
+  char first[]="30"; // 0x30
+  char second[2+1]; // 12 + length(DN) + length(PW) (in hexa)
+  char third[]="02010160";
+  char fourth[2+1]; // 7 + length(DN) + length(PW) (in hexa)
+  char fifth[]="02010304";
+  char sixth[2+1]; // length(DN) (in hexa)
   // DN
-  char seventh[]="80";
-  char eighth[2+1]; // length(PW)
+  char eighth[]="80";
+  char nineth[2+1]; // length(PW) (in hexa)
   // PW
 
   int i=0, j=0;
@@ -60,21 +61,21 @@ main (int argc, char *argv[])
   }
   bindPWH[j]='\0';
 
-  // compute first
-  sprintf((char*)first,"%04x",(int)(0x3009+strlen(bindDN)+strlen(bindPW)));
-  first[4]='\0';
+  // compute second
+  sprintf((char*)second,"%02x",(int)(0xc+strlen(bindDN)+strlen(bindPW)));
+  second[2]='\0';
 
-  // compute third
-  sprintf((char*)third,"%02x",(int)(strlen(bindDN)+strlen(bindPW)-0xb));
-  third[2]='\0';
+  // compute fourth
+  sprintf((char*)fourth,"%02x",(int)(7+strlen(bindDN)+strlen(bindPW)));
+  fourth[2]='\0';
 
-  // compute fifth
-  sprintf((char*)fifth,"%02x",(int)(strlen(bindDN)-0xc));
-  fifth[2]='\0';
+  // compute sixth
+  sprintf((char*)sixth,"%02x",(int)strlen(bindDN));
+  sixth[2]='\0';
 
-  // compute eighth
-  sprintf((char*)eighth,"%02x",(int)strlen(bindPW));
-  eighth[2]='\0';
+  // compute nineth
+  sprintf((char*)nineth,"%02x",(int)strlen(bindPW));
+  nineth[2]='\0';
 
   // assembly
   strcat(bindRequest, first);
@@ -82,9 +83,10 @@ main (int argc, char *argv[])
   strcat(bindRequest, third);
   strcat(bindRequest, fourth);
   strcat(bindRequest, fifth);
+  strcat(bindRequest, sixth);
   strcat(bindRequest, bindDNH);
-  strcat(bindRequest, seventh);
   strcat(bindRequest, eighth);
+  strcat(bindRequest, nineth);
   strcat(bindRequest, bindPWH);
 
   printf("%s\n\n",bindRequest);
